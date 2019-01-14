@@ -1,14 +1,10 @@
 <!DOCTYPE html>
-<html class="no-js"> <!--<![endif]-->
+<html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        <title>Homepage</title>
         <style>
-             body{
+            body{
                 font-family: arial;
                 margin: 0;
             }
@@ -40,6 +36,15 @@
                 padding: 0 10px;
                 color: #333;
             }
+            main img{
+                width: 40px;
+                margin-right: 10px;
+                position: relative;
+                top: 12px;
+            }
+            main p{
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
@@ -53,10 +58,13 @@
                 <li><a href="/">Homepage</a></li>
                 <li><a href="/profile">Profile</a></li>
             </ul>
-        </nav>   
+        </nav>
         <header>
-            <h1>Homepagee</h1>
-        </header>     
-        <script src="" async defer></script>
+            <h1>Welcome to your profile, <%= user.username %></h1>
+            <img src="<%= user.thumbnail%>">
+        </header>
+        <main>
+
+        </main>
     </body>
 </html>
