@@ -1,17 +1,15 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
+const FacebookStrategy = require('passport-facebook').Strategy;
 const keys = require('./keys');
 const userModel = require('../models/user-model');
 
 passport.serializeUser((user, done) => {
-    // console.log('reached serialized');
-    // console.log(user);
     done(null, user._id);
 });
 
 passport.deserializeUser((id, done) => {
     userModel.findById(id).then((userr) => {
-        //console.log('reached deserialized');
         done(null, userr);
     })
 });
@@ -25,10 +23,7 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
         //passport callback function
-        // console.log(profile);
-        // console.log('reached callback')
         userModel.find({profileId: profile.id}).then((currentUser) =>{
-            //console.log('c '+Object.keys(currentUser).length);
             if(Object.keys(currentUser).length > 0) {
                 console.log('user is s: '+currentUser);
                 done(null, currentUser[0]);
@@ -47,3 +42,30 @@ passport.use(
       
     })
 );
+
+passport.use(new FacebookStrategy({
+        clientID: keys.facebook.app_id,
+        clientSecret: keys.facebook.app_secret,
+        callbackURL: '/auth/facebook/redirect',
+        profileFields: ['emails', 'first_name', 'middle_name', 'last_name',]
+    },
+    function(accessToken, refreshToken, profile, done) {
+        
+
+        let imgUrl = 'https://graph.facebook.com/'+profile.id+'/picture?width=200&height=200&access_token='+accessToken;
+        userModel.find({profileId: profile.id}).then((currentUser) => {
+            if(Object.keys(currentUser).length > 0) {
+                done(null, currentUser[0]);
+            } else {
+                new userModel({
+                    profileId: profile.id,
+                    username: profile.name.givenName +' '+profile.name.familyName,
+                    thumbnail: imgUrl
+                }).save().then((newUser) =>{
+                    done(null, newUser);
+                });
+            }
+        });
+    }
+
+))
