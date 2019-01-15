@@ -1,6 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const GithubStrategy = require('passport-github2').Strategy;
 const keys = require('./keys');
 const userModel = require('../models/user-model');
 
@@ -66,6 +67,28 @@ passport.use(new FacebookStrategy({
                 });
             }
         });
-    }
+    })
+);
 
-))
+passport.use(new GithubStrategy({
+        clientID: keys.github.clientID,
+        clientSecret: keys.github.clientSecret,
+        callbackURL: 'http://localhost:3001/auth/github/redirect'
+    },
+    (accessToken, refreshToken, profile, done) => {
+        console.log(profile);
+        userModel.find({profileId: profile.id}).then((currentUser) => {
+            if(Object.keys(currentUser).length > 0) {
+                done(null, currentUser[0]);
+            } else {
+                new userModel({
+                    profileId: profile.id,
+                    username: profile.displayName,
+                    thumbnail: profile.photos[0].value
+                }).save().then((newUser) => {
+                    done(null, newUser);
+                });
+            }
+        });
+    })
+)

@@ -34,4 +34,14 @@ router.get('/facebook/redirect', passport.authenticate('facebook'), (req, res) =
     res.redirect('/profile/')
 })
 
+
+//auth with github
+router.get('/github', passport.authenticate('github', {
+    scope:['email']
+}));
+
+//callback route for github to redirect to
+router.get('/github/redirect', passport.authenticate('github'), (req, res) => {
+    res.redirect('/profile/');
+})
 module.exports = router;
