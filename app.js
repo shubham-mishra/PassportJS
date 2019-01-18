@@ -1,4 +1,5 @@
 const app = require('express')();
+const parser = require('body-parser');
 const authRoutes = require('./routes/auth-routes');
 const profileRoutes = require('./routes/profile-routes');
 const passportSetup = require('./config/passport-setup');
@@ -9,6 +10,8 @@ const keys = require('./config/keys');
 
 //set view engine
 app.set('view engine', 'ejs');
+
+app.use(parser.urlencoded({ extended: true }));
 
 app.use(cookieSession({
     maxAge: 24 * 60 * 60 * 1000,

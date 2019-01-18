@@ -2,6 +2,8 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GithubStrategy = require('passport-github2').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
+
 const keys = require('./keys');
 const userModel = require('../models/user-model');
 
@@ -51,7 +53,6 @@ passport.use(new FacebookStrategy({
         profileFields: ['emails', 'first_name', 'middle_name', 'last_name',]
     },
     function(accessToken, refreshToken, profile, done) {
-        
 
         let imgUrl = 'https://graph.facebook.com/'+profile.id+'/picture?width=200&height=200&access_token='+accessToken;
         userModel.find({profileId: profile.id}).then((currentUser) => {
@@ -91,4 +92,16 @@ passport.use(new GithubStrategy({
             }
         });
     })
-)
+);
+
+passport.use(new LocalStrategy(
+    (username, password, done) => {
+        userModel.find({profileId: username}).then((currentUser) => {
+           if(Object.keys(currentUser).length > 0) {
+               done(null, currentUser[0]);
+           } else {
+               done(null, newUser);
+           }
+        })
+    }
+))
