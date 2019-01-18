@@ -1,6 +1,22 @@
 const router = require('express').Router();
 const passport = require('passport');
 const userModel = require('./../models/user-model');
+const multer = require('multer');
+const fs = require('fs');
+
+const multerStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        console.log('sdfreac' + __dirname)
+        cb(null, 'uploads/')
+      },
+    filename: (req, file, cb) => {
+
+        console.log(file);
+        cb(null, req.body.profileId + '.' + file.originalname.split('.')[1] )
+    }
+});
+let upload = multer({storage: multerStorage}).single('profileImage');
+
 
 //auth login
 router.get('/login', (req, res) => {
@@ -55,17 +71,22 @@ router.post('/localLogin', passport.authenticate('local', { successRedirect: '/'
 });
 
 router.post('/localRegister', (req, res) => {
-    let profileId = res.body.profile-id;
+    let profileId = req.body.profileId;
     userModel.find({profileId: profileId}).then((currentUser) => {
         if( Object.keys(currentUser).length > 0 ) {
             res.send('user already exists');
         } else {
-            new userModel({
-                profileId: profileId,
-                username: res.body.user-name,
-                password: res.body.password,
-                
-            })
+            upload(req, res, function (err) {
+                if (err instanceof multer.MulterError) {
+                  // A Multer error occurred when uploading.
+                  console.log(err);
+                } else if (err) {
+                  // An unknown error occurred when uploading.
+                  console.log(err);
+                }
+                res.end('done');
+                // Everything went fine.
+              })
         }
     })
     
