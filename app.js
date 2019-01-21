@@ -1,4 +1,5 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const parser = require('body-parser');
 const authRoutes = require('./routes/auth-routes');
 const profileRoutes = require('./routes/profile-routes');
@@ -26,6 +27,9 @@ app.use(passport.session());
 mongoose.connect(keys.mongodb.dbURI, () => {
     console.log("connected to mongodb");
 });
+
+//serving static files, user images
+app.use('/static',express.static(__dirname+'/uploads'));
 
 //set up routes
 app.use('/auth', authRoutes);

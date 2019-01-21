@@ -10,7 +10,6 @@ const multerStorage = multer.diskStorage({
         cb(null, 'uploads/')
       },
     filename: (req, file, cb) => {
-
         console.log(file);
         cb(null, req.body.profileId + '.' + file.originalname.split('.')[1] )
     }
@@ -65,13 +64,10 @@ router.get('/github/redirect', passport.authenticate('github'), (req, res) => {
 //auth with local strategy
 router.post('/localLogin', passport.authenticate('local', { successRedirect: '/',
     failureRedirect: '/auth/login'
- }),  (req, res) => {
-    console.log('reach');
-    res.send('reqached login');
-});
+ })
+);
 
 router.post('/localRegister', (req, res) => {
-    let profileId = req.body.profileId;
     userModel.find({profileId: profileId}).then((currentUser) => {
         if( Object.keys(currentUser).length > 0 ) {
             res.send('user already exists');
@@ -84,11 +80,27 @@ router.post('/localRegister', (req, res) => {
                   // An unknown error occurred when uploading.
                   console.log(err);
                 }
-                res.end('done');
+                
                 // Everything went fine.
+
+                new userModel({
+                    username: req.body.userName,
+                    profileId: req.body.profileId,
+                    thumbnail: 'http://localhost:3001/static/'+req.body.profileId+'.png',
+                    password: req.body.password
+                }).save().then((newUser) => {
+                    req.body.username = req.body.userName;
+                    res.redirect('/auth/login');
+                }).catch((err) => {
+                    res.send('got error while registering user');
+                })
               })
         }
     })
     
+});
+
+router.get('/check', (req, res) => {
+    res.send('http://localhost:3000/uploads/sdf.png');
 })
 module.exports = router;

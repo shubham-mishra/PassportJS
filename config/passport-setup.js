@@ -96,11 +96,13 @@ passport.use(new GithubStrategy({
 
 passport.use(new LocalStrategy(
     (username, password, done) => {
-        userModel.find({profileId: username}).then((currentUser) => {
+        userModel.find({profileId: username, password: password}).then((currentUser) => {
+           
            if(Object.keys(currentUser).length > 0) {
                done(null, currentUser[0]);
-           } else {
-               done(null, newUser);
+           } else {3
+                //pass false as second parameter to fail the login as credentials are wrong
+               done(null, false);
            }
         })
     }
